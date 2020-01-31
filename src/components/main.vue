@@ -1,5 +1,11 @@
 <template>
   <div class="virus">
+    <!-- 加载动画 -->
+    <div class="loader1" v-if="loading">
+    	<div class="circle"></div>
+    	<div class="circle"></div>
+    </div>
+    <div class="mask" v-if="loading"></div>
     <!-- 统计-->
     <div class="info total">
       <header>
@@ -70,7 +76,7 @@
             v-for="(city,index0) in item.children"
             :key="index0"
           >
-            <p>{{city.name}}</p>no
+            <p>{{city.name}}</p>
             <p>{{city.total.confirm}}</p>
             <p>{{city.total.suspect}}</p>
             <p>{{city.total.dead}}</p>
@@ -111,6 +117,7 @@
   export default{
     data(){
       return{
+        loading : false,
         height : 0,
         newData : {},
         chinaTree : {},
@@ -129,8 +136,13 @@
             this.abroadTree = res.data.areaTree
             echarts.map(this,map,res.data.mapData)
             echarts.line(this,line,res.data.historyData)
+            this.loading = false
           })
-          .catch(err => console.log(err))
+          .catch(err => {
+            this.loading = false
+            alert('网络错误')
+            console.log(err)
+          })
       },
       change(index,status){
         this.chinaTree.children[index].open = status
@@ -138,6 +150,7 @@
       }
     },
     mounted() {
+      this.loading = true
       const width = map.offsetWidth
       this.height = width * 0.75
       this.getData()
@@ -287,5 +300,42 @@
   }
   .virus .detail .item .all-city .city:last-child{
     border: none;
+  }
+
+  /* 加载动画*/
+  .loader1{
+    z-index: 9999;
+  	position: absolute;
+  	top: 20%;
+  	height: 50px;
+  	transform-origin: bottom center;
+  	animation: rotate 3s linear infinite;
+  }
+
+  .loader1 .circle{
+  	background-color: purple;
+  	width: 40px;
+  	height: 40px;
+  	border-radius: 50%;
+  	transform: scale(0);
+  	animation: grow 1.5s linear infinite;
+  	margin: -10px;
+  }
+
+  .loader1 .circle:nth-child(2){
+  	background-color: palevioletred;
+  	animation-delay: 0.75s;
+  }
+
+  @keyframes rotate{
+  	to{
+  		transform: rotate(360deg);
+  	}
+  }
+
+  @keyframes grow{
+  	50%{
+  		transform: scale(1);
+  	}
   }
 </style>
